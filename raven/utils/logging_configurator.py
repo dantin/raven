@@ -24,14 +24,14 @@ class DefaultLoggingConfigurator(LoggingConfigurator):
         if app_config['SILENCE_FAB']:
             logging.getLogger('flask_appbuilder').setLevel(logging.ERROR)
 
-        # configure klinic app logger.
-        klinic_logger = logging.getLogger('klinic')
+        # configure raven app logger.
+        raven_logger = logging.getLogger('raven')
         if debug_mode:
-            klinic_logger.setLevel(logging.DEBUG)
+            raven_logger.setLevel(logging.DEBUG)
         else:
             # In production mode, add log handler to sys.stderr.
-            klinic_logger.addHandler(logging.StreamHandler())
-            klinic_logger.setLevel(logging.INFO)
+            raven_logger.addHandler(logging.StreamHandler())
+            raven_logger.setLevel(logging.INFO)
 
         logging.basicConfig(format=app_config['LOG_FORMAT'])
         logging.getLogger().setLevel(app_config['LOG_LEVEL'])

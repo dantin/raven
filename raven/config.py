@@ -21,7 +21,7 @@ SECRET_KEY = "deadbeefthisismyscretkeydeadbeef"
 # The SQLAlchemy connection string.
 # SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(BASE_DIR, "app.db")
 # SQLALCHEMY_DATABASE_URI = 'mysql://myapp@localhost/myapp'
-SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:password@127.0.0.1/klinic'
+SQLALCHEMY_DATABASE_URI = 'postgresql://raven:pas$w0rD@127.0.0.1/ravendb'
 
 # Flask-WTF flag for CSRF
 CSRF_ENABLED = True
@@ -122,7 +122,7 @@ LOG_LEVEL = 'DEBUG'
 # ---------------------------------------------------
 ENABLE_TIME_ROTATE = False
 TIME_ROTATE_LOG_LEVEL = 'DEBUG'
-FILENAME = os.path.join(DATA_DIR, 'klinic.log')
+FILENAME = os.path.join(DATA_DIR, 'raven.log')
 ROLLOVER = 'midnight'
 INTERVAL = 1
 BACKUP_COUNT = 10

@@ -18,7 +18,7 @@ from raven.utils.core import pessimistic_connection_handling
 logger = logging.getLogger(__name__)
 
 
-class KlinicIndexView(IndexView):
+class RavenIndexView(IndexView):
     @expose("/")
     def index(self):
         user = g.user
@@ -33,10 +33,10 @@ def create_app() -> Flask:
 
     try:
         # Allow user to override config completely.
-        config_module = os.environ.get('KLINIC_CONFIG', 'klinic.config')
+        config_module = os.environ.get('RAVEN_CONFIG', 'raven.config')
         app.config.from_object(config_module)
 
-        app_initializer = app.config.get('APP_INITIALIZER', KlinicAppInitializer)(app)
+        app_initializer = app.config.get('APP_INITIALIZER', RavenAppInitializer)(app)
         app_initializer.init_app()
 
         return app
@@ -45,7 +45,7 @@ def create_app() -> Flask:
         raise ex
 
 
-class KlinicAppInitializer:
+class RavenAppInitializer:
     def __init__(self, app: Flask) -> None:
         super().__init__()
 
@@ -81,12 +81,12 @@ class KlinicAppInitializer:
     def configure_fab(self) -> None:
         if self.config['SILENCE_FAB']:
             logging.getLogger('flask_appbuilder').setLevel(logging.ERROR)
-        appbuilder.indexview = KlinicIndexView
+        appbuilder.indexview = RavenIndexView
         appbuilder.init_app(self.flask_app, db.session)
 
     def init_views(self) -> None:
         db.create_all()
-        from klinic.views import (
+        from raven.views import (
             HospitalModelView,
             DepartmentModelView,
             DeviceModelView,
