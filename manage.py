@@ -1,32 +1,87 @@
 # -*- coding: utf-8 -*-
+import logging
+from typing import Any, Dict
+
 import click
+from colorama import Fore
+from flask.cli import FlaskGroup, with_appcontext
+from raven import app
+from raven.app import create_app
+from raven.extensions import db
 
-from setting import VERSION
 
-CONTEXT_SETTINGS = {'help_option_names': ['-h', '--help']}
+logger = logging.getLogger(__name__)
 
 
-@click.group(context_settings=CONTEXT_SETTINGS)
-@click.version_option(version=VERSION)
+def normalize_token(token_name: str) -> str:
+    return token_name.replace('_', '-')
+
+
+# @click.group(
+#     context_settings={'token_normalize_func': normalize_token},
+# )
+@click.group(
+    cls=FlaskGroup,
+    create_app=create_app,
+    context_settings={'token_normalize_func': normalize_token},
+)
+@with_appcontext
 def cli():
-    """Raven CLI utilities."""
-    pass
+    """This is a management script for the Klinic application."""
+    @app.shell_context_processor
+    def make_shell_context() -> Dict[str, Any]:
+        return dict(app=app, db=db)
 
 
-@cli.command(name='server')
-def server():
-    """Run API Server."""
-    click.echo(f'VERSION: {VERSION}\n')
+@cli.command()
+@click.option('--listen_addr', default='0.0.0.0:8080', type=str,
+              help='listen address, default: 0.0.0.0:8080')
+def server(listen_addr):
+    """Run backend server"""
+    from klinic.app import create_app
+    app = create_app()
 
-    from api import run_api_server
-    listen_addr = '0.0.0.0:9527'
-    run_api_server(listen_addr)
+    run_flask(app, listen_addr)
 
 
-@cli.command(name='robot')
-def robot():
-    """Run XMPP Bot Service."""
-    click.echo(f'VERSION: {VERSION}\n')
+@cli.command()
+@click.option('--verbose', '-v', is_flag=True, help='')
+def version(verbose: bool) -> None:
+    """Prints the current version number"""
+    print(Fore.BLUE + '==' * 15)
+    print(
+        Fore.YELLOW + 'Klinic ' + Fore.CYAN + '0.1-dev'
+    )
+    print(Fore.BLUE + '==' * 15)
+
+
+def run_flask(app, listen_addr):
+    import gunicorn.app.base
+
+    class StandaloneApplication(gunicorn.app.base.BaseApplication):
+        def __init__(self, app, options=None):
+            self.application = app
+            self.options = options or {}
+            super(StandaloneApplication, self).__init__()
+
+        def load_config(self):
+            _config = dict([(key, val) for key, val in self.options.items()
+                            if key in self.cfg.settings and val is not None])
+            print(_config)
+            for key, val in _config.items():
+                self.cfg.set(key.lower(), val)
+
+        def load(self):
+            return self.application
+
+    _options = {
+        'bind': listen_addr,
+        'workers': 4,
+        'accesslog': '-',  # log to stdout
+        'access_log_format': '%(h)s %(l)s %(t)s "%(r)s" %(s)s "%(a)s"'
+    }
+
+    StandaloneApplication(app, _options).run()
 
 
 if __name__ == '__main__':
