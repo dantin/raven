@@ -6,6 +6,7 @@ from flask import Flask, g, render_template, redirect
 from flask_appbuilder import expose, IndexView
 from flask_babel import lazy_gettext as _
 
+from raven.security import RavenSecurityManager
 from raven.extensions import (
     APP_DIR,
     appbuilder,
@@ -82,6 +83,7 @@ class RavenAppInitializer:
         if self.config['SILENCE_FAB']:
             logging.getLogger('flask_appbuilder').setLevel(logging.ERROR)
         appbuilder.indexview = RavenIndexView
+        appbuilder.security_manager_class = RavenSecurityManager
         appbuilder.init_app(self.flask_app, db.session)
 
     def init_views(self) -> None:
