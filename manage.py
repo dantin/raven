@@ -6,7 +6,7 @@ import click
 from colorama import Fore, Style
 from flask.cli import FlaskGroup, with_appcontext
 
-from raven import app
+from raven import app, appbuilder, security_manager
 from raven.app import create_app
 from raven.extensions import db
 
@@ -29,6 +29,14 @@ def cli() -> None:
     @app.shell_context_processor
     def make_shell_context() -> Dict[str, Any]:
         return dict(app=app, db=db)
+
+
+@cli.command()
+@with_appcontext
+def init() -> None:
+    """Initialize the Raven application."""
+    appbuilder.add_permissions(update_perms=True)
+    security_manager.sync_role_definitions()
 
 
 @cli.command()
