@@ -9,6 +9,8 @@ logger = logging.getLogger(__name__)
 
 class RavenSecurityManager(SecurityManager):
 
+    userstatschartview = None
+
     def create_custom_permissions(self) -> None:
         """
         Create custom FAB permissions.
