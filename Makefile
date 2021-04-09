@@ -19,6 +19,14 @@ db-init:
 db-destroy:
 	@sudo -u postgres psql < misc/db-destroy.sql
 
+.PHONY: ejabberd-db-init
+ejabberd-db-init:
+	@sudo -u postgres psql < misc/ejabberd-db-create.sql
+
+.PHONY: ejabberd-db-destroy
+ejabberd-db-destroy:
+	@sudo -u postgres psql < misc/ejabberd-db-destroy.sql
+
 .PHONY: babel-extract
 babel-extract:
 	@cd raven; FLASK_APP=app flask fab babel-extract
