@@ -1,4 +1,4 @@
-
+# README
 
 ### Database Schema
 
@@ -11,6 +11,12 @@ Create `raven` schema:
 Create `ejabberd` schema:
 
     psql -U ejabber -W ejabberdb -h 127.0.0.1 < misc/ejabberd-schema.sql
+
+### Initialize Application
+
+Create administrator:
+
+    python manage.py fab create-admin
 
 ### Links
 

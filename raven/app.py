@@ -4,7 +4,7 @@ import os
 
 from flask import Flask, g, render_template, redirect
 from flask_appbuilder import expose, IndexView
-from flask_babel import lazy_gettext as _
+from flask_babel import lazy_gettext
 
 from raven.security import RavenSecurityManager
 from raven.extensions import (
@@ -89,56 +89,28 @@ class RavenAppInitializer:
     def init_views(self) -> None:
         db.create_all()
         from raven.views import (
-            HospitalModelView,
-            DepartmentModelView,
+            RoomModelView,
             DeviceModelView,
-            DeviceBrandModelView,
-            DeviceTypeModelView,
+            StreamModelView,
         )
 
         appbuilder.add_view(
-            HospitalModelView,
-            'List Hospital',
-            icon='fa-hospital-o',
-            label=_('Hospital List'),
-            category='Organizations',
-            category_icon='fa-sitemap',
-            category_label=_('Organization Management'),
-        )
-        appbuilder.add_view(
-            DepartmentModelView,
-            'List Department',
-            icon='fa-medkit',
-            label=_('Department List'),
-            category='Organizations',
-            category_label=_('Organization Management'),
+            RoomModelView,
+            'List Room',
+            icon='fa-tachometer',
+            label=lazy_gettext('Room List'),
+            category='Data',
+            category_icon='fa-server',
+            category_label=lazy_gettext('System Management'),
         )
         appbuilder.add_view(
             DeviceModelView,
             'List Device',
             icon='fa-tachometer',
-            label=_('Device List'),
-            category='Devices',
-            category_icon='fa-server',
-            category_label=_('Device Management'),
+            label=lazy_gettext('Device List'),
+            category='Data',
         )
-        appbuilder.add_view(
-            DeviceBrandModelView,
-            'List Device Brand',
-            icon='fa-book',
-            label=_('Device Brand List'),
-            category='Meta',
-            category_icon='fa-cubes',
-            category_label=_('Meta Management'),
-        )
-        appbuilder.add_view(
-            DeviceTypeModelView,
-            'List Device Type',
-            icon='fa-tags',
-            label=_('Device Type List'),
-            category='Meta',
-            category_label=_('Meta Management'),
-        )
+        appbuilder.add_view_no_menu(StreamModelView, 'StreamModelView')
         """
         Application wide 404 error handler
         """

@@ -3,6 +3,9 @@ import logging
 
 from flask_appbuilder.security.sqla.manager import SecurityManager
 
+from .models import RavenUser
+from .views import RavenUserDBModelView
+
 
 logger = logging.getLogger(__name__)
 
@@ -10,14 +13,14 @@ logger = logging.getLogger(__name__)
 class RavenSecurityManager(SecurityManager):
 
     userstatschartview = None
+    user_model = RavenUser
+    userdbmodelview = RavenUserDBModelView
 
     def create_custom_permissions(self) -> None:
         """
         Create custom FAB permissions.
         """
-        self.add_permission_view_menu("all_datasource_access", "all_datasource_access")
-        self.add_permission_view_menu("all_database_access", "all_database_access")
-        self.add_permission_view_menu("all_query_access", "all_query_access")
+        pass
 
     def sync_role_definitions(self) -> None:
         """ Initialize the Raven application with security roles and such."""
