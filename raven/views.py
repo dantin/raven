@@ -2,107 +2,74 @@
 
 from flask_appbuilder import ModelView
 from flask_appbuilder.models.sqla.interface import SQLAInterface
-from flask_babel import lazy_gettext as _
+from flask_babel import lazy_gettext
 
-from .models import Device, Hospital, Department, DeviceBrand, DeviceType
+from .models import Device, Room, Stream
+
+
+class RoomModelView(ModelView):
+    datamodel = SQLAInterface(Room)
+    list_title = lazy_gettext('Room List')
+    show_title = lazy_gettext('Room Detail')
+    add_title = lazy_gettext('Add Room')
+    edit_title = lazy_gettext('Edit Room')
+
+    list_columns = [
+        'name',
+        'jabber_id',
+    ]
+
+    base_order = ('id', 'asc')
+
+
+class StreamModelView(ModelView):
+    datamodel = SQLAInterface(Stream)
+    # base_permission = ['can_add', 'can_show']
+    list_title = lazy_gettext('Stream List')
+    show_title = lazy_gettext('Stream Detail')
+    add_title = lazy_gettext('Add Stream')
+    edit_title = lazy_gettext('Edit Stream')
+
+    list_columns = ['push_url', 'broadcast_url']
 
 
 class DeviceModelView(ModelView):
     datamodel = SQLAInterface(Device)
-    list_title = _('List Device')
-    show_title = _('Show Device')
-    add_title = _('Add Device')
-    edit_title = _('Edit Device')
+    related_views = [StreamModelView]
+    show_template = 'appbuilder/general/model/show_cascade.html'
+
+    list_title = lazy_gettext('Device List')
+    show_title = lazy_gettext('Device Detail')
+    add_title = lazy_gettext('Add Device')
+    edit_title = lazy_gettext('Edit Device')
 
     list_columns = [
-        'no',
+        'serial_no',
         'name',
-        'department.hospital.name',
-        'department',
-        'device_type',
+        'room.name',
     ]
 
     label_columns = {
-        'no': _('Device No.'),
-        'name': _('Device Name'),
-        'department.hospital.name': _('Hospital Name'),
-        'department': _('Department'),
-        'device_type': _('Device Type'),
-        'apm_id': _('APM ID'),
+        'serial_no': lazy_gettext('Device No.'),
+        'name': lazy_gettext('Device Name'),
+        'room': lazy_gettext('Room'),
     }
 
     base_order = ('id', 'asc')
 
     show_fieldsets = [
         (
-            _('Summary'),
-            {'fields': ['no', 'name']}
+            lazy_gettext('Summary'),
+            {'fields': ['serial_no', 'name']}
         ),
         (
-            _('Device Info'),
+            lazy_gettext('Room Detail'),
             {
                 'fields': [
-                    'no',
-                    'name',
-                    'apm_id',
+                    'room.name',
+                    'room.jabber_id',
                 ],
-                'expanded': False,
+                'expanded': True,
             },
         ),
     ]
-
-
-class DepartmentModelView(ModelView):
-    datamodel = SQLAInterface(Department)
-    list_columns = ['hospital.name', 'name']
-    list_title = _('List Department')
-    show_title = _('Show Department')
-    add_title = _('Add Department')
-    edit_title = _('Edit Department')
-
-    label_columns = {
-        'hospital.name': _('Hospital Name'),
-        'name': _('Department Name'),
-    }
-
-
-class HospitalModelView(ModelView):
-    datamodel = SQLAInterface(Hospital)
-    related_views = [
-        DepartmentModelView,
-    ]
-    list_title = _('List Hospital')
-    show_title = _('Show Hospital')
-    add_title = _('Add Hospital')
-    edit_title = _('Edit Hospital')
-
-    label_columns = {
-        'name': _('Hospital Name'),
-    }
-
-
-class DeviceTypeModelView(ModelView):
-    datamodel = SQLAInterface(DeviceType)
-    list_columns = ['device_brand.name', 'name']
-    list_title = _('List Device Type')
-    show_title = _('Show Device Type')
-    add_title = _('Add Device Type')
-    edit_title = _('Edit Device Type')
-    label_columns = {
-        'device_brand.name': _('Device Brand Name'),
-        'name': _('Device Type'),
-    }
-
-
-class DeviceBrandModelView(ModelView):
-    datamodel = SQLAInterface(DeviceBrand)
-    related_views = [
-        DeviceTypeModelView,
-    ]
-    list_title = _('List Device Brand')
-    show_title = _('Show Device Brand')
-    add_title = _('Add Device Brand')
-    edit_title = _('Edit Device Brand')
-    label_columns = {
-        'name': _('Device Brand'),
-    }
