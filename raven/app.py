@@ -90,8 +90,8 @@ class RavenAppInitializer:
         db.create_all()
         from raven.views import (
             RoomModelView,
-            DeviceModelView,
-            StreamModelView,
+            VideoBoxModelView,
+            VideoStreamModelView,
         )
 
         appbuilder.add_view(
@@ -99,18 +99,18 @@ class RavenAppInitializer:
             'List Room',
             icon='fa-tachometer',
             label=lazy_gettext('Room List'),
-            category='Data',
+            category='Video',
             category_icon='fa-server',
-            category_label=lazy_gettext('System Management'),
+            category_label=lazy_gettext('Video Management'),
         )
         appbuilder.add_view(
-            DeviceModelView,
-            'List Device',
+            VideoBoxModelView,
+            'List VideoBox',
             icon='fa-tachometer',
-            label=lazy_gettext('Device List'),
-            category='Data',
+            label=lazy_gettext('VideoBox List'),
+            category='Video',
         )
-        appbuilder.add_view_no_menu(StreamModelView, 'StreamModelView')
+        appbuilder.add_view_no_menu(VideoStreamModelView, 'VideoStreamModelView')
         """
         Application wide 404 error handler
         """
