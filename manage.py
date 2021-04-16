@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
+import signal
+from threading import Event
 from typing import Any, Dict
 
 import click
@@ -52,6 +54,39 @@ def version(verbose: bool) -> None:
     if verbose:
         print(f'[DB]: {db.engine}')
     print(Style.RESET_ALL)
+
+
+@cli.command()
+@click.option('--username', '-u', help='Jabber username')
+@click.option('--password', '-p', help='Jabber password')
+@click.option('--nickname', '-n', help='Jabber nickname')
+def run_robot(username: str, password: str, nickname: str) -> None:
+    """Run XMPP Robot Client."""
+
+    from raven.robot import UltrasoundBot
+
+    def shutdown_cb(sig, frame):
+        """Callback function for shutdown event."""
+        logger.info('Recieve signal #%d, shutdown...', sig)
+        _shutdown_event.set()
+
+    # shutdown event
+    _shutdown_event = Event()
+    # Register shutdown handler.
+    for sig in (signal.SIGINT, signal.SIGTERM):
+        signal.signal(sig, shutdown_cb)
+
+    xmpp = UltrasoundBot(username, password, nickname)
+    xmpp.register_plugin('xep_0030')  # Service Discovery
+    xmpp.register_plugin('xep_0045')  # Multi-User Chat
+    xmpp.register_plugin('xep_0085')  # Chat State Notification
+    xmpp.register_plugin('xep_0092')  # Software Version
+    xmpp.register_plugin('xep_0199')  # XMPP Ping
+
+    xmpp.connect()
+    while not _shutdown_event.is_set():
+        xmpp.process(timeout=1.0)
+    xmpp.disconnect()
 
 
 if __name__ == '__main__':
