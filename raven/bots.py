@@ -5,7 +5,7 @@ import json
 
 from slixmpp import ClientXMPP
 
-from raven.utils.codec import xml_unescape, xml_escape
+from raven.utils.codec import xml_unescape
 
 
 logger = logging.getLogger(__name__)
