@@ -4,3 +4,4 @@ Flask-Migrate>=2.7.0
 psycopg2-binary>=2.8.6
 gunicorn>=20.0.4
 slixmpp>=1.7.0
+requests>=2.25.1

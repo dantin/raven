@@ -1,21 +1,25 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import json
 
 from slixmpp import ClientXMPP
+
+from raven.utils.codec import xml_unescape, xml_escape
 
 
 logger = logging.getLogger(__name__)
 
 
 class UltrasoundBot(ClientXMPP):
-    def __init__(self, jid, password, nick):
+    def __init__(self, jid, password, nick, remote_api):
         ClientXMPP.__init__(self, jid, password)
         self.use_message_ids = True
         self.use_ssl = True
 
         self.rooms = None
         self.nick = nick
+        self.remote_api = remote_api
 
         # session start disconnect events.
         self.add_event_handler('session_start', self.start_session)
@@ -48,8 +52,22 @@ class UltrasoundBot(ClientXMPP):
 
         # ever other messages will be answered statically
         if msg['type'] in ('normal', 'chat'):
+            body = xml_unescape(msg['body'])
+            logger.debug('unescaped mesage: %s', body)
+            try:
+                cmd = json.loads(body)
+                if cmd and 'name' in cmd:
+                    if 'rooms' == cmd['name']:
+                        rooms = self.remote_api.list_room()
+                        resp = rooms.decode()
+                else:
+                    resp = 'no name in command: %(body)s' % msg
+            except Exception as e:
+                resp = 'bad json'
+                logger.warning(e)
+
             self.send_message(
                 mto=msg['from'],
-                mbody='got: %(body)s' % msg,
+                mbody=resp,
                 mtype=msg['type'],
             )

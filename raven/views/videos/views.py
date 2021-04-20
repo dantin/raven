@@ -4,7 +4,7 @@ from flask_appbuilder import ModelView
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_babel import lazy_gettext
 
-from .models import VideoBox, Room, VideoStream
+from raven.models import VideoBox, Room, VideoStream
 
 
 class RoomModelView(ModelView):
