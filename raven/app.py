@@ -53,11 +53,19 @@ class RavenAppInitializer:
         self.flask_app = app
         self.config = app.config
 
+    def pre_init(self) -> None:
+        """
+        Called before all other init tasks are complete.
+        """
+        if not os.path.exists(self.config["DATA_DIR"]):
+            os.makedirs(self.config["DATA_DIR"])
+
     def init_app(self) -> None:
         """
         Main entry point which will delegate to other methods in
         order to fully init the app.
         """
+        self.pre_init()
         self.setup_db()
         self.configure_logging()
         with self.flask_app.app_context():
@@ -87,12 +95,17 @@ class RavenAppInitializer:
         appbuilder.init_app(self.flask_app, db.session)
 
     def init_views(self) -> None:
-        db.create_all()
-        from raven.views import (
+        from raven.videos.api import RoomRestApi
+        from raven.views.videos.views import (
             RoomModelView,
             VideoBoxModelView,
             VideoStreamModelView,
         )
+
+        #
+        # Setup API views
+        #
+        appbuilder.add_api(RoomRestApi)
 
         appbuilder.add_view(
             RoomModelView,
