@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-
 import logging
-import json
 
 from slixmpp import ClientXMPP
 
-from raven.utils.codec import xml_unescape
+from raven.utils.codec import parse_message, RequestType
 
 
 logger = logging.getLogger(__name__)
@@ -52,22 +50,28 @@ class UltrasoundBot(ClientXMPP):
 
         # ever other messages will be answered statically
         if msg['type'] in ('normal', 'chat'):
-            body = xml_unescape(msg['body'])
-            logger.debug('unescaped mesage: %s', body)
-            try:
-                cmd = json.loads(body)
-                if cmd and 'name' in cmd:
-                    if 'rooms' == cmd['name']:
-                        rooms = self.remote_api.list_room()
-                        resp = rooms.decode()
-                else:
-                    resp = 'no name in command: %(body)s' % msg
-            except Exception as e:
-                resp = 'bad json'
-                logger.warning(e)
+            reply = self.process_message(msg['body'])
 
             self.send_message(
                 mto=msg['from'],
-                mbody=resp,
+                mbody=reply,
                 mtype=msg['type'],
             )
+
+    def process_message(self, content: str) -> str:
+        ok, req = parse_message(content)
+
+        if not ok:
+            return '{"code": 1, "message": "bad message format or type"}'
+
+        if req.request_type == RequestType.LIST_ROOM:
+            page, page_size = req.extra['page'], req.extra['page_size']
+            reply = self.remote_api.list_room(page, page_size)
+        elif req.request_type == RequestType.PROFILE:
+            reply = '{"code": 2, "message": "not implemented"}'
+        elif req.request_type == RequestType.GET_ROOM:
+            reply = '{"code": 2, "message": "not implemented"}'
+        else:
+            reply = '{"code": 1, "message": "unprocess"}'
+
+        return reply

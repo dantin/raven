@@ -52,7 +52,7 @@ def init(username: str, password: str, nickname: str, api_root: str) -> None:
 @click.password_option()
 def setup_api(root_path: str, username: str, password: str) -> None:
     """Setup the Raven API configuration."""
-    from raven.utils.core import RavenConfig
+    from raven.config import RavenConfig
 
     cfg = RavenConfig()
     cfg.update_api(root_path, username, password)
@@ -66,7 +66,7 @@ def setup_api(root_path: str, username: str, password: str) -> None:
 @click.password_option()
 def setup_jabber(nickname, username, password) -> None:
     """Setup the Raven Jabber configuration."""
-    from raven.utils.core import RavenConfig
+    from raven.config import RavenConfig
 
     cfg = RavenConfig()
     cfg.update_jabber(nickname, username, password)
@@ -94,7 +94,7 @@ def bot() -> None:
     """Run XMPP Robot Client."""
 
     from raven.bots import UltrasoundBot
-    from raven.utils.core import RavenConfig
+    from raven.config import RavenConfig
     from raven.utils.remote_api import RavenOpenApi
 
     cfg = RavenConfig()

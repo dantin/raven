@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
 import logging
+from configparser import ConfigParser
+from typing import Tuple
 
 from flask_appbuilder.security.manager import AUTH_DB
 
@@ -14,6 +16,49 @@ if 'RAVEN_HOME' in os.environ:
     DATA_DIR = os.environ['RAVEN_HOME']
 else:
     DATA_DIR = os.path.join(os.path.expanduser('~'), '.raven')
+
+
+class RavenConfig():
+    def __init__(self, filename=os.path.join(DATA_DIR, 'raven.cfg')):
+        self.filename = filename
+        cfg = ConfigParser()
+        cfg.read(filename)
+        self.cfg = cfg
+
+    def update_api(self, root_path: str, username: str, password: str) -> None:
+        if not self.cfg.has_section('api'):
+            self.cfg.add_section('api')
+
+        self.cfg.set('api', 'root_path', root_path)
+        self.cfg.set('api', 'username', username)
+        self.cfg.set('api', 'password', password)
+        self._save()
+
+    def update_jabber(self, nickname: str, username: str, password: str) -> None:
+        if not self.cfg.has_section('jabber'):
+            self.cfg.add_section('jabber')
+
+        self.cfg.set('jabber', 'nickname', nickname)
+        self.cfg.set('jabber', 'username', username)
+        self.cfg.set('jabber', 'password', password)
+        self._save()
+
+    def load_api(self) -> Tuple[str, str, str]:
+        root_path = self.cfg.get('api', 'root_path')
+        username = self.cfg.get('api', 'username')
+        password = self.cfg.get('api', 'password')
+        return root_path, username, password
+
+    def load_jabber(self) -> Tuple[str, str, str]:
+        nickname = self.cfg.get('jabber', 'nickname')
+        username = self.cfg.get('jabber', 'username')
+        password = self.cfg.get('jabber', 'password')
+        return nickname, username, password
+
+    def _save(self):
+        with open(self.filename, 'w') as f:
+            self.cfg.write(f)
+
 
 # Your App secret key
 SECRET_KEY = "deadbeefthisismyscretkeydeadbeef"
