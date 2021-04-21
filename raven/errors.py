@@ -9,7 +9,7 @@ class RavenErrorType(str, Enum):
     Types of errors that can exist within Raven.
     """
     # DB Engine errors
-    GENERIC_DB_ENGINE_ERROR = "GENERIC_DB_ENGINE_ERROR"
+    GENERIC_DB_ENGINE_ERROR = 'GENERIC_DB_ENGINE_ERROR'
 
     # Gneric errors
     GENERIC_BACKEND_ERROR = 'GENERIC_BACKEND_ERROR'
