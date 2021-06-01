@@ -17,6 +17,9 @@ if 'RAVEN_HOME' in os.environ:
 else:
     DATA_DIR = os.path.join(os.path.expanduser('~'), '.raven')
 
+if not os.path.exists(DATA_DIR):
+    os.mkdir(DATA_DIR)
+
 
 class RavenConfig():
     def __init__(self, filename=os.path.join(DATA_DIR, 'raven.cfg')):

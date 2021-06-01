@@ -2,6 +2,7 @@
 import logging
 
 from slixmpp import ClientXMPP
+from slixmpp.jid import JID
 
 from raven.utils.codec import parse_message, RequestType
 
@@ -50,7 +51,7 @@ class UltrasoundBot(ClientXMPP):
 
         # ever other messages will be answered statically
         if msg['type'] in ('normal', 'chat'):
-            reply = self.process_message(msg['body'])
+            reply = self.process_message(msg['from'], msg['body'])
 
             self.send_message(
                 mto=msg['from'],
@@ -58,7 +59,7 @@ class UltrasoundBot(ClientXMPP):
                 mtype=msg['type'],
             )
 
-    def process_message(self, content: str) -> str:
+    def process_message(self, jabber_id: JID, content: str) -> str:
         ok, req = parse_message(content)
 
         if not ok:
@@ -68,9 +69,10 @@ class UltrasoundBot(ClientXMPP):
             page, page_size = req.extra['page'], req.extra['page_size']
             reply = self.remote_api.list_room(page, page_size)
         elif req.request_type == RequestType.PROFILE:
-            reply = '{"code": 2, "message": "not implemented"}'
+            reply = self.remote_api.profile(jabber_id.bare)
         elif req.request_type == RequestType.GET_ROOM:
-            reply = '{"code": 2, "message": "not implemented"}'
+            room_id = req.extra['room_id']
+            reply = self.remote_api.get_room(room_id)
         else:
             reply = '{"code": 1, "message": "unprocess"}'
 
