@@ -95,6 +95,7 @@ class RavenAppInitializer:
         appbuilder.init_app(self.flask_app, db.session)
 
     def init_views(self) -> None:
+        from raven.security.api import SecurityRestApi
         from raven.videos.api import RoomRestApi
         from raven.views.videos.views import (
             RoomModelView,
@@ -105,8 +106,12 @@ class RavenAppInitializer:
         #
         # Setup API views
         #
+        appbuilder.add_api(SecurityRestApi)
         appbuilder.add_api(RoomRestApi)
 
+        #
+        # Setup Web views
+        #
         appbuilder.add_view(
             RoomModelView,
             'List Room',

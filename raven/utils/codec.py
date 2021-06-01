@@ -64,7 +64,8 @@ def parse_message(content: str) -> Tuple[bool, RequestMessage]:
         elif cmd == 'room':
             req = RequestMessage(
                 request_type=RequestType.GET_ROOM,
-                extra=None)
+                extra={
+                    'room_id': elem.get('id', 0)})
         else:
             req = RequestMessage(
                 request_type=RequestType.UNKNOWN,
