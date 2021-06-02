@@ -20,7 +20,7 @@ class SecurityRestApi(BaseApi):
     @protect()
     @safe
     def get_roles(self, jabber_id: str) -> Response:
-        logger.info(f'get roles of {jabber_id}')
+        logger.debug(f'get roles of {jabber_id}')
 
         roles = RavenUserDAO.get_roles_by_jabber_id(jabber_id)
         return self.response(200, result={

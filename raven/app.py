@@ -115,7 +115,7 @@ class RavenAppInitializer:
         appbuilder.add_view(
             RoomModelView,
             'List Room',
-            icon='fa-tachometer',
+            icon='fa-television',
             label=lazy_gettext('Room List'),
             category='Video',
             category_icon='fa-server',
@@ -124,7 +124,7 @@ class RavenAppInitializer:
         appbuilder.add_view(
             VideoBoxModelView,
             'List VideoBox',
-            icon='fa-tachometer',
+            icon='fa-cube',
             label=lazy_gettext('VideoBox List'),
             category='Video',
         )
