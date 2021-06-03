@@ -20,6 +20,7 @@ class RoomRestApi(BaseRavenModelRestApi):
     class_permission_name = 'Room'
 
     list_columns = [
+        'id',
         'name',
         'jabber_id',
     ]
@@ -46,6 +47,7 @@ class RoomRestApi(BaseRavenModelRestApi):
                     'broadcast_url': video_stream.broadcast_url,
                 })
         return self.response(200, result={
+            'id': room_id,
             'name': room.name,
             'jabber_id': room.jabber_id,
             'streams': streams,

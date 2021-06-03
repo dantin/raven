@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 class BaseRavenModelRestApi(ModelRestApi):
     """
-    Extends FAB's ModelResApi to implement specific superset generic functionality.
+    Extends FAB's ModelResApi to implement specific raven generic functionality.
     """
     csrf_exempt = False
 

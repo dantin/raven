@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
+import json
 
 from slixmpp import ClientXMPP
 from slixmpp.jid import JID
@@ -11,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class UltrasoundBot(ClientXMPP):
-    def __init__(self, jid, password, nick, remote_api):
+    def __init__(self, jid: str, password: str, nick: str, remote_api: str):
         ClientXMPP.__init__(self, jid, password)
         self.use_message_ids = True
         self.use_ssl = True
@@ -25,20 +26,20 @@ class UltrasoundBot(ClientXMPP):
         # register receive handler for both groupchat and normal message events.
         self.add_event_handler('message', self.message)
 
-    async def start_session(self, event):
+    async def start_session(self, event) -> None:
         """session start."""
         await self.get_roster()
         self.send_presence()
         # self.join_rooms()
 
-    def join_rooms(self):
+    def join_rooms(self) -> None:
         """method to join configured rooms and register their response handler"""
         if self.rooms:
             for room in self.rooms:
                 # self.add_event_handler(f'muc::{room}::got_online', self.notify_user)
                 self.plugin['xep_0045'].join_muc(room, self.nick, wait=True)
 
-    def message(self, msg):
+    def message(self, msg) -> None:
         """
         method to handle incoming chat, normal messages
         :param msg: incoming msg object
@@ -63,17 +64,35 @@ class UltrasoundBot(ClientXMPP):
         ok, req = parse_message(content)
 
         if not ok:
-            return '{"code": 1, "message": "bad message format or type"}'
+            return json.dumps({'code': 1, 'message': 'bad message format or type'})
 
         if req.request_type == RequestType.LIST_ROOM:
             page, page_size = req.extra['page'], req.extra['page_size']
-            reply = self.remote_api.list_room(page, page_size)
+            resp = self.remote_api.list_room(page, page_size)
+            reply = {
+                'code': 0,
+                'cmd': 'rooms',
+                'page': page,
+                'page_size': page_size,
+                'result': resp['result'],
+            }
         elif req.request_type == RequestType.PROFILE:
-            reply = self.remote_api.profile(jabber_id.bare)
+            resp = self.remote_api.profile(jabber_id.bare)
+            reply = {
+                'code': 0,
+                'cmd': 'profile',
+                'result': resp['result'],
+            }
         elif req.request_type == RequestType.GET_ROOM:
             room_id = req.extra['room_id']
-            reply = self.remote_api.get_room(room_id)
+            resp = self.remote_api.get_room(room_id)
+            reply = {
+                'code': 0,
+                'cmd': 'room',
+                'id': room_id,
+                'result': resp['result'],
+            }
         else:
-            reply = '{"code": 1, "message": "unprocess"}'
+            reply = {'code': 1, 'message': 'unprocess'}
 
-        return reply
+        return json.dumps(reply)

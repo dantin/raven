@@ -45,7 +45,6 @@ class RequestMessage():
 def parse_message(content: str) -> Tuple[bool, RequestMessage]:
     try:
         content = xml_unescape(content)
-        print(content)
         elem = json.loads(content)
         if 'cmd' not in elem:
             return False, None

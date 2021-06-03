@@ -95,7 +95,7 @@ def bot() -> None:
 
     from raven.bots import UltrasoundBot
     from raven.config import RavenConfig
-    from raven.utils.remote_api import RavenOpenApi
+    from raven.remote.client import RavenOpenApi
 
     cfg = RavenConfig()
     nickname, username, password = cfg.load_jabber()
