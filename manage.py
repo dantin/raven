@@ -35,42 +35,10 @@ def cli() -> None:
 
 @cli.command()
 @with_appcontext
-@click.option('--api_root', '-a', help='API root path')
-@click.option('--username', '-u', help='Jabber username')
-@click.option('--password', '-p', help='Jabber password')
-@click.option('--nickname', '-n', help='Jabber nickname')
-def init(username: str, password: str, nickname: str, api_root: str) -> None:
+def init() -> None:
     """Initialize the Raven application."""
     appbuilder.add_permissions(update_perms=True)
     security_manager.sync_role_definitions()
-
-
-@cli.command()
-@with_appcontext
-@click.option('--root_path', default='http://127.0.0.1:8080/api/v1', prompt='API root path')
-@click.option('--username', default='admin', prompt='API authenticate username')
-@click.password_option()
-def setup_api(root_path: str, username: str, password: str) -> None:
-    """Setup the Raven API configuration."""
-    from raven.config import RavenConfig
-
-    cfg = RavenConfig()
-    cfg.update_api(root_path, username, password)
-    click.echo(click.style('API User {0} updated.'.format(username), fg='green'))
-
-
-@cli.command()
-@with_appcontext
-@click.option('--nickname', default='nickname', prompt='Jabber nickname')
-@click.option('--username', default='user@localhost', prompt='Jabber username')
-@click.password_option()
-def setup_jabber(nickname, username, password) -> None:
-    """Setup the Raven Jabber configuration."""
-    from raven.config import RavenConfig
-
-    cfg = RavenConfig()
-    cfg.update_jabber(nickname, username, password)
-    click.echo(click.style('Jabber User {0} updated.'.format(username), fg='green'))
 
 
 @cli.command()
@@ -94,12 +62,10 @@ def bot() -> None:
     """Run XMPP Robot Client."""
 
     from raven.bots import UltrasoundBot
-    from raven.config import RavenConfig
-    from raven.remote.client import RavenOpenApi
+    from raven.config import RavenJabberConfig
 
-    cfg = RavenConfig()
-    nickname, username, password = cfg.load_jabber()
-    click.echo(click.style('Jabber Bot {0} prepare to login.'.format(nickname), fg='green'))
+    cfg = RavenJabberConfig()
+    click.echo(click.style(f'Jabber Bot {cfg.nickname} prepare to login.', fg='green'))
 
     def shutdown_cb(sig, frame):
         """Callback function for shutdown event."""
@@ -112,9 +78,7 @@ def bot() -> None:
     for sig in (signal.SIGINT, signal.SIGTERM):
         signal.signal(sig, shutdown_cb)
 
-    root_path, api_username, api_password = cfg.load_api()
-    remote_api = RavenOpenApi(root_path, api_username, api_password)
-    xmpp = UltrasoundBot(username, password, nickname, remote_api)
+    xmpp = UltrasoundBot(cfg)
     xmpp.register_plugin('xep_0030')  # Service Discovery
     xmpp.register_plugin('xep_0045')  # Multi-User Chat
     xmpp.register_plugin('xep_0085')  # Chat State Notification
@@ -122,12 +86,12 @@ def bot() -> None:
     xmpp.register_plugin('xep_0199')  # XMPP Ping
 
     xmpp.connect()
-    click.echo(click.style('Jabber Bot {0} connected.'.format(nickname), fg='green'))
+    click.echo(click.style(f'Jabber Bot {cfg.nickname} connected.', fg='green'))
 
     while not _shutdown_event.is_set():
         xmpp.process(timeout=1.0)
     xmpp.disconnect()
-    click.echo(click.style('Jabber Bot {0} disconnected.'.format(nickname), fg='green'))
+    click.echo(click.style(f'Jabber Bot {cfg.nickname} disconnected.', fg='green'))
 
 
 if __name__ == '__main__':
