@@ -3,7 +3,7 @@ import json
 import logging
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional
 from xml.sax.saxutils import escape, unescape
 
 
@@ -42,12 +42,14 @@ class RequestMessage():
     extra: Optional[Dict[str, Any]] = None
 
 
-def parse_message(content: str) -> Tuple[bool, RequestMessage]:
+def decode(content: str) -> RequestMessage:
     try:
         content = xml_unescape(content)
         elem = json.loads(content)
         if 'cmd' not in elem:
-            return False, None
+            return RequestMessage(
+                request_type=RequestType.UNKNOWN,
+                extra=None)
 
         cmd = elem['cmd']
         if cmd == 'rooms':
@@ -70,7 +72,13 @@ def parse_message(content: str) -> Tuple[bool, RequestMessage]:
                 request_type=RequestType.UNKNOWN,
                 extra=None)
 
-        return True, req
+        return req
     except Exception as e:
         logger.warning(e)
-        return False, None
+        return RequestMessage(
+            request_type=RequestType.UNKNOWN,
+            extra=None)
+
+
+def encode(entity: Any) -> str:
+    return json.dumps(entity)

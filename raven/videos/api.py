@@ -6,7 +6,7 @@ from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_appbuilder.api import expose, protect, safe
 
 from raven.views.base_api import BaseRavenModelRestApi
-from raven.videos.dao import RoomDAO, VideoBoxDAO, VideoStreamDAO
+from raven.videos.dao import RoomDAO
 from raven.models import Room
 
 
@@ -35,17 +35,16 @@ class RoomRestApi(BaseRavenModelRestApi):
     @protect()
     @safe
     def get(self, room_id: int) -> Response:
+        logger.debug(f'get room info with {room_id}')
+
         room = RoomDAO.get_by_id(room_id)
-        video_boxes = VideoBoxDAO.get_by_room(room.id)
         streams = []
-        for box in video_boxes:
-            video_streams = VideoStreamDAO.get_by_video_box(box.id)
-            for video_stream in video_streams:
-                streams.append({
-                    'type': video_stream.stream_type,
-                    'push_url': video_stream.push_url,
-                    'broadcast_url': video_stream.broadcast_url,
-                })
+        for box in room.video_boxes:
+            streams.extend([{
+                'type': video_stream.stream_type,
+                'push_url': video_stream.push_url,
+                'broadcast_url': video_stream.broadcast_url,
+            } for video_stream in box.video_streams])
         return self.response(200, result={
             'id': room_id,
             'name': room.name,

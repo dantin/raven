@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import pytest
 
-from raven.utils.codec import xml_escape, xml_unescape, parse_message, RequestMessage, RequestType
+from raven.utils.codec import xml_escape, xml_unescape, decode, RequestMessage, RequestType
 
 
 @pytest.mark.parametrize(
@@ -29,18 +29,18 @@ def test_xml_unescape(content, expected):
 
 
 @pytest.mark.parametrize(
-    'body,is_ok,expected',
+    'body,expected',
     [
-        ('{"cmd": "rooms", "page": 0, "page_size": 4}', True,
+        ('{"cmd": "rooms", "page": 0, "page_size": 4}',
             RequestMessage(request_type=RequestType.LIST_ROOM, extra={'page': 0, 'page_size': 4})),
-        ('{"cmd": "rooms"}', True,
+        ('{"cmd": "rooms"}',
             RequestMessage(request_type=RequestType.LIST_ROOM, extra={'page': 0, 'page_size': 4})),
-        ('{"cmd": "xxx"}', True,
+        ('{"cmd": "xxx"}',
             RequestMessage(request_type=RequestType.UNKNOWN, extra=None)),
-        ('{"xxx": "xxx"}', False, None),
+        ('{"xxx": "xxx"}',
+            RequestMessage(request_type=RequestType.UNKNOWN, extra=None)),
     ],
 )
-def test_parse_message(body, is_ok, expected):
-    ok, actual = parse_message(body)
-    assert ok == is_ok
+def test_decode(body, expected):
+    actual = decode(body)
     assert actual == expected

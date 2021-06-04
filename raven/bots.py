@@ -1,25 +1,26 @@
 # -*- coding: utf-8 -*-
 import logging
-import json
 
 from slixmpp import ClientXMPP
 from slixmpp.jid import JID
 
-from raven.utils.codec import parse_message, RequestType
+from raven.utils.codec import decode, encode, RequestType
+from raven.remote.client import RavenOpenApi
+from raven.config import RavenJabberConfig
 
 
 logger = logging.getLogger(__name__)
 
 
 class UltrasoundBot(ClientXMPP):
-    def __init__(self, jid: str, password: str, nick: str, remote_api: str):
-        ClientXMPP.__init__(self, jid, password)
+    def __init__(self, cfg: RavenJabberConfig):
+        ClientXMPP.__init__(self, cfg.username, cfg.password)
         self.use_message_ids = True
         self.use_ssl = True
 
         self.rooms = None
-        self.nick = nick
-        self.remote_api = remote_api
+        self.nick = cfg.nickname
+        self.remote_api = RavenOpenApi()
 
         # session start disconnect events.
         self.add_event_handler('session_start', self.start_session)
@@ -61,10 +62,7 @@ class UltrasoundBot(ClientXMPP):
             )
 
     def process_message(self, jabber_id: JID, content: str) -> str:
-        ok, req = parse_message(content)
-
-        if not ok:
-            return json.dumps({'code': 1, 'message': 'bad message format or type'})
+        req = decode(content)
 
         if req.request_type == RequestType.LIST_ROOM:
             page, page_size = req.extra['page'], req.extra['page_size']
@@ -93,6 +91,6 @@ class UltrasoundBot(ClientXMPP):
                 'result': resp['result'],
             }
         else:
-            reply = {'code': 1, 'message': 'unprocess'}
+            reply = {'code': 1, 'message': 'bad message format or type'}
 
-        return json.dumps(reply)
+        return encode(reply)

@@ -6,6 +6,7 @@ from slixmpp.jid import JID
 
 from raven.exceptions import RemoteAPIError
 from raven.utils.http import get, post
+from raven.config import RavenAPIConfig, RavenJabberAPIConfig
 
 
 logger = logging.getLogger(__name__)
@@ -13,10 +14,11 @@ logger = logging.getLogger(__name__)
 
 class RavenOpenApi():
 
-    def __init__(self, root_path: str, username: str, password: str, provider: str = 'db'):
-        self.root_path = root_path
-        self.username = username
-        self.password = password
+    def __init__(self, provider: str = 'db'):
+        cfg = RavenAPIConfig()
+        self.root_path = cfg.root_path
+        self.username = cfg.username
+        self.password = cfg.password
         self.provider = provider
 
     def list_room(self, page=0, page_size=4) -> Dict[str, Any]:
@@ -72,10 +74,11 @@ class RavenOpenApi():
 
 class EjabberdOpenAPI():
 
-    def __init__(self, root_path: str, username: str = '', password: str = '') -> None:
-        self.root_path = root_path
-        self.username = username
-        self.password = password
+    def __init__(self) -> None:
+        cfg = RavenJabberAPIConfig()
+        self.root_path = cfg.root_path
+        self.username = cfg.username
+        self.password = cfg.password
 
     def check_account(self, jabber_id: str) -> bool:
         """check if an account exists or not."""
@@ -109,6 +112,46 @@ class EjabberdOpenAPI():
         api_url = f'{self.root_path}/api/unregister'
         jid = JID(jabber_id)
         body = {'user': jid.user, 'host': jid.host}
+        try:
+            post(api_url, json=body)
+            return True
+        except RemoteAPIError:
+            return False
+
+    def create_room(self, jabber_id: str, host: str = 'localhost', **kwargs) -> bool:
+        """create a MUC room in host with given options."""
+        logger.debug(f'create a MUC room using {jabber_id}')
+
+        api_url = f'{self.root_path}/api/create_room_with_opts'
+        jid = JID(jabber_id)
+        options = [{'name': k, 'value': v} for k, v in kwargs]
+        body = {'name': jid.user, 'service': jid.host, 'host': host, 'options': options}
+        try:
+            post(api_url, json=body)
+            return True
+        except RemoteAPIError:
+            return False
+
+    def destroy_room(self, jabber_id: str) -> bool:
+        """destroy a MUC room."""
+        logger.debug(f'destroy a MUC room by {jabber_id}')
+
+        api_url = f'{self.root_path}/api/destroy_room'
+        jid = JID(jabber_id)
+        body = {'name': jid.user, 'service': jid.host}
+        try:
+            post(api_url, json=body)
+            return True
+        except RemoteAPIError:
+            return False
+
+    def check_room(self, jabber_id: str) -> bool:
+        """check if a room exists or not."""
+        logger.debug(f'check if room {jabber_id} exists or not')
+
+        api_url = f'{self.root_path}/api/get_room_options'
+        jid = JID(jabber_id)
+        body = {'name': jid.user, 'service': jid.host}
         try:
             post(api_url, json=body)
             return True
