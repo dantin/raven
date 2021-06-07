@@ -23,6 +23,11 @@ class RoomModelView(ModelView):
         'jabber_id',
     ]
 
+    label_columns = {
+        'name': lazy_gettext('Name'),
+        'jabber_id': lazy_gettext('Jabber ID'),
+    }
+
     base_order = ('id', 'asc')
 
     def post_add(self, item):
@@ -65,6 +70,12 @@ class VideoStreamModelView(ModelView):
 
     list_columns = ['stream_type', 'push_url', 'broadcast_url']
 
+    label_columns = {
+        'stream_type': lazy_gettext('Stream Type'),
+        'push_url': lazy_gettext('Push Url'),
+        'broadcast_url': lazy_gettext('Broadcast Url'),
+    }
+
 
 class VideoBoxModelView(ModelView):
     datamodel = SQLAInterface(VideoBox)
@@ -84,8 +95,10 @@ class VideoBoxModelView(ModelView):
 
     label_columns = {
         'serial_no': lazy_gettext('VideoBox No.'),
-        'name': lazy_gettext('VideoBox Name'),
+        'name': lazy_gettext('Name'),
         'room': lazy_gettext('Room'),
+        'video_streams': lazy_gettext('Video Streams'),
+        'video_box_type': lazy_gettext('VideoBox Type'),
     }
 
     base_order = ('id', 'asc')
