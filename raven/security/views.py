@@ -94,7 +94,7 @@ class RavenUserDBModelView(UserDBModelView):
             return
 
         jabber_id = item.jabber_id
-        logger.debug(f'delete {jabber_id} from ejabber')
+        logger.debug(f'delete account {jabber_id} from ejabber')
         ejabber_api.unregister(jabber_id)
 
     def _sync_account(self, jabber_id: str) -> None:

@@ -2,12 +2,12 @@
 import logging
 
 from flask import Response
-from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_appbuilder.api import expose, protect, safe
+from flask_appbuilder.models.sqla.interface import SQLAInterface
 
-from raven.views.base_api import BaseRavenModelRestApi
-from raven.videos.dao import RoomDAO
 from raven.models import Room
+from raven.videos.dao import RoomDAO
+from raven.views.base_api import BaseRavenModelRestApi
 
 
 logger = logging.getLogger(__name__)
