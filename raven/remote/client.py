@@ -124,7 +124,7 @@ class EjabberdOpenAPI():
 
         api_url = f'{self.root_path}/api/create_room_with_opts'
         jid = JID(jabber_id)
-        options = [{'name': k, 'value': v} for k, v in kwargs]
+        options = [{'name': k, 'value': v} for k, v in kwargs.items()]
         body = {'name': jid.user, 'service': jid.host, 'host': host, 'options': options}
         try:
             post(api_url, json=body)
@@ -153,7 +153,7 @@ class EjabberdOpenAPI():
         jid = JID(jabber_id)
         body = {'name': jid.user, 'service': jid.host}
         try:
-            post(api_url, json=body)
-            return True
+            props = post(api_url, json=body)
+            return len(props) > 0
         except RemoteAPIError:
             return False
