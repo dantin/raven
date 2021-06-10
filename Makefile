@@ -38,3 +38,8 @@ babel-extract:
 .PHONY: babel-compile
 babel-compile:
 	@cd raven; FLASK_APP=app flask fab babel-compile
+
+
+.PHONY: dist
+dist:
+	@python setup.py sdist
