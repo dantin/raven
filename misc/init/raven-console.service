@@ -1,0 +1,10 @@
+[Unit]
+Description=Raven Web Console
+After=syslog.target network.target postgresql.service
+
+[Service]
+User=devops
+ExecStart=/home/devops/Documents/scripts/run_raven_console.sh
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,10 @@
+[Unit]
+Description=Raven XMPP Bot
+After=syslog.target network.target raven-console.service ejabberd.service
+
+[Service]
+User=devops
+ExecStart=/home/devops/Documents/scripts/run_raven_bot.sh
+
+[Install]
+WantedBy=multi-user.target
