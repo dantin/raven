@@ -1,0 +1,3 @@
+graft raven/templates
+graft raven/translations
+global-exclude *.pyc

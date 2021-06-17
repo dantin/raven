@@ -55,7 +55,7 @@ class RoomModelView(ModelView):
 
         if not ejabber_api.check_room(jabber_id):
             ejabber_api.create_room(jabber_id,
-                                    members_only='true',
+                                    members_only='false',
                                     persistent='true',
                                     public='false')
 

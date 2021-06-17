@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 
-from flask import Response
+from flask import Response, request
 from flask_appbuilder.api import expose, protect, safe
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 
@@ -31,13 +31,22 @@ class RoomRestApi(BaseRavenModelRestApi):
         'jabber_id',
     ]
 
-    @expose('/detail/<room_id>', methods=['GET'])
+    @expose('/detail', methods=['GET'])
     @protect()
     @safe
-    def get(self, room_id: int) -> Response:
-        logger.debug(f'get room info with {room_id}')
+    def get(self) -> Response:
+        room = None
+        if 'jabber_id' in request.args:
+            jabber_id = request.args.get('jabber_id')
+            logger.debug(f'get room info by jabber id {jabber_id}')
+            room = RoomDAO.get_by_jabber_id(jabber_id)
+        elif 'room_id' in request.args:
+            room_id = request.args.get('room_id')
+            logger.debug(f'get room info by room id {room_id}')
+            room = RoomDAO.get_by_id(room_id)
+        else:
+            return self.response(404)
 
-        room = RoomDAO.get_by_id(room_id)
         streams = []
         for box in room.video_boxes:
             streams.extend([{
@@ -46,7 +55,7 @@ class RoomRestApi(BaseRavenModelRestApi):
                 'broadcast_url': video_stream.broadcast_url,
             } for video_stream in box.video_streams])
         return self.response(200, result={
-            'id': room_id,
+            'id': room.id,
             'name': room.name,
             'jabber_id': room.jabber_id,
             'streams': streams,
