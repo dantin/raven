@@ -42,15 +42,15 @@ class RavenOpenApi():
             logger.warn(f'fail to list room of page {page}, size {page_size}')
             return {}
 
-    def get_room(self, room_id: int) -> Dict[str, Any]:
-        logger.debug(f'get room by id {room_id}')
+    def get_room(self, jabber_id: str) -> Dict[str, Any]:
+        logger.debug(f'get room by {jabber_id}')
 
-        api_url = f'{self.root_path}/room/detail/{room_id}'
+        api_url = f'{self.root_path}/room/detail/{jabber_id}'
         try:
             headers = self._load_auth_header()
             return get(api_url, None, headers=headers)
         except RemoteAPIError:
-            logger.warn(f'fail to get room by id {room_id}')
+            logger.warn(f'fail to get room by {jabber_id}')
             return {}
 
     def profile(self, jabber_id: str) -> Dict[str, Any]:

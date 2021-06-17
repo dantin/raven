@@ -31,13 +31,13 @@ class RoomRestApi(BaseRavenModelRestApi):
         'jabber_id',
     ]
 
-    @expose('/detail/<room_id>', methods=['GET'])
+    @expose('/detail/<jabber_id>', methods=['GET'])
     @protect()
     @safe
-    def get(self, room_id: int) -> Response:
-        logger.debug(f'get room info with {room_id}')
+    def get(self, jabber_id: int) -> Response:
+        logger.debug(f'get room info by {jabber_id}')
 
-        room = RoomDAO.get_by_id(room_id)
+        room = RoomDAO.get_by_jabber_id(jabber_id)
         streams = []
         for box in room.video_boxes:
             streams.extend([{
@@ -46,7 +46,7 @@ class RoomRestApi(BaseRavenModelRestApi):
                 'broadcast_url': video_stream.broadcast_url,
             } for video_stream in box.video_streams])
         return self.response(200, result={
-            'id': room_id,
+            'id': room.id,
             'name': room.name,
             'jabber_id': room.jabber_id,
             'streams': streams,
