@@ -18,6 +18,10 @@ class RoomDAO(BaseDAO):
     base_filter = None
 
     @staticmethod
+    def get_by_id(room_id: int) -> Room:
+        return RoomDAO.find_by_id(room_id)
+
+    @staticmethod
     def get_by_jabber_id(jabber_id: str) -> Room:
         rooms = RoomDAO.find_all()
         if not rooms:

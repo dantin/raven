@@ -33,7 +33,7 @@ class RavenOpenApi():
             records = []
             for row in result:
                 room_id = row['id']
-                room = self.get_room(room_id)
+                room = self.get_room(room_id=room_id)
                 if not room:
                     continue
                 records.append(room)
@@ -42,13 +42,18 @@ class RavenOpenApi():
             logger.warn(f'fail to list room of page {page}, size {page_size}')
             return {}
 
-    def get_room(self, jabber_id: str) -> Dict[str, Any]:
+    def get_room(self, jabber_id: str = '', room_id: int = 0) -> Dict[str, Any]:
         logger.debug(f'get room by {jabber_id}')
 
-        api_url = f'{self.root_path}/room/detail/{jabber_id}'
+        api_url = f'{self.root_path}/room/detail'
         try:
             headers = self._load_auth_header()
-            return get(api_url, None, headers=headers)
+            if jabber_id:
+                return get(api_url, {'jabber_id': jabber_id}, headers=headers)
+            elif room_id > 0:
+                return get(api_url, {'room_id': room_id}, headers=headers)
+            else:
+                return {}
         except RemoteAPIError:
             logger.warn(f'fail to get room by {jabber_id}')
             return {}
