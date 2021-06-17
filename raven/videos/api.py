@@ -48,7 +48,6 @@ class RoomRestApi(BaseRavenModelRestApi):
             return self.response(404)
 
         streams = []
-        print(room)
         for box in room.video_boxes:
             streams.extend([{
                 'type': video_stream.stream_type,
