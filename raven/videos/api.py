@@ -38,11 +38,11 @@ class RoomRestApi(BaseRavenModelRestApi):
         room = None
         if 'jabber_id' in request.args:
             jabber_id = request.args.get('jabber_id')
-            logger.info(f'get room info by jabber id {jabber_id}')
+            logger.debug(f'get room info by jabber id {jabber_id}')
             room = RoomDAO.get_by_jabber_id(jabber_id)
         elif 'room_id' in request.args:
             room_id = request.args.get('room_id')
-            logger.info(f'get room info by room id {room_id}')
+            logger.debug(f'get room info by room id {room_id}')
             room = RoomDAO.get_by_id(room_id)
         else:
             return self.response(404)
