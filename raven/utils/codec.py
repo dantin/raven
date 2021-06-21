@@ -66,7 +66,8 @@ def decode(content: str) -> RequestMessage:
             req = RequestMessage(
                 request_type=RequestType.GET_ROOM,
                 extra={
-                    'room_id': elem.get('id', 0)})
+                    'jabber-id': elem.get('jabber-id', '')})
+            print(elem.get('jabber-id', ''))
         else:
             req = RequestMessage(
                 request_type=RequestType.UNKNOWN,
