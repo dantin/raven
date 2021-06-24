@@ -82,7 +82,8 @@ class UltrasoundBot(ClientXMPP):
                 'result': resp['result'],
             }
         elif req.request_type == RequestType.GET_ROOM:
-            resp = self.remote_api.get_room(jabber_id=jabber_id.bare)
+            jabber_id = req.extra['jabber-id']
+            resp = self.remote_api.get_room(jabber_id=jabber_id)
             reply = {
                 'code': 0,
                 'cmd': 'room',

@@ -14,12 +14,12 @@ Details:
 
 ### Get Room
 
-    {"cmd": "room", "id": 1}
+    {"cmd": "room", "jabber-id": "room02@conference.localhost"}
 
 Details:
 
 1. `cmd`: name of the command, should be `room`;
-2. `id`: room id;
+2. `jabber-id`: room jabber id;
 
 ### Profile
 
